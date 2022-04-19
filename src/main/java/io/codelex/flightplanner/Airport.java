@@ -47,11 +47,10 @@ public class Airport {
 
     @Override
     public String toString() {
-        return "Airport{" +
-                "country='" + country + '\'' +
-                ", city='" + city + '\'' +
-                ", airport='" + airport + '\'' +
-                '}';
+        return "Airport{"
+                + "country='"
+                + country + '\'' + ", city='" + city + '\''
+                + ", airport='" + airport + '\'' + '}';
     }
 
     @Override

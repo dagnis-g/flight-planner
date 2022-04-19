@@ -81,14 +81,14 @@ public class Flight {
 
     @Override
     public String toString() {
-        return "Flight{" +
-                "id=" + id +
-                ", from=" + from +
-                ", to=" + to +
-                ", carrier='" + carrier + '\'' +
-                ", departureTime=" + departureTime +
-                ", arrivalTime=" + arrivalTime +
-                '}';
+        return "Flight{"
+                + "id=" + id
+                + ", from=" + from
+                + ", to=" + to
+                + ", carrier='" + carrier + '\''
+                + ", departureTime=" + departureTime
+                + ", arrivalTime=" + arrivalTime
+                + '}';
     }
 
     @Override

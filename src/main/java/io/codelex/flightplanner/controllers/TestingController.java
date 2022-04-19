@@ -1,10 +1,10 @@
 package io.codelex.flightplanner.controllers;
 
-import io.codelex.flightplanner.Flight;
 import io.codelex.flightplanner.FlightService;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin
 @RestController
@@ -17,17 +17,12 @@ public class TestingController {
     }
 
     @GetMapping("/testing-api")
-    public String hello(){
+    public String hello() {
         return "hello";
     }
-
-//    @GetMapping("/testing-api/getall")
-//    public List<Flight> getFlights(){
-//        return flightService.getFlightList();
-//    }
-
+    
     @PostMapping("/testing-api/clear")
-    public void clearFlights(){
+    public void clearFlights() {
         flightService.clearFlights();
     }
 }

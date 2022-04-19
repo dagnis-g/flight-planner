@@ -22,9 +22,9 @@ public class FlightRepository {
 
     @Override
     public String toString() {
-        return "FlightRepository{" +
-                "flights=" + flights +
-                '}';
+        return "FlightRepository{"
+                + "flights=" + flights
+                + '}';
     }
 
     public List<Flight> getFlights() {
@@ -68,7 +68,7 @@ public class FlightRepository {
                 items.add(i);
             }
         }
-        
+
         int page = (int) Math.ceil(totalItems / RESULTS_PER_PAGE);
         PageResult result = new PageResult(page, totalItems, items);
 

@@ -72,9 +72,9 @@ public class FlightService {
 
     @Override
     public String toString() {
-        return "FlightService{" +
-                "flightRepository=" + flightRepository +
-                '}';
+        return "FlightService{"
+                + "flightRepository="
+                + flightRepository + '}';
     }
 
     public List<Flight> getFlightList() {

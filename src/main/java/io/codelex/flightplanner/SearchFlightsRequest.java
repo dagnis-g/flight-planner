@@ -43,10 +43,9 @@ public class SearchFlightsRequest {
 
     @Override
     public String toString() {
-        return "SearchFlightsRequest{" +
-                "from='" + from + '\'' +
-                ", to='" + to + '\'' +
-                ", departureDate=" + departureDate +
-                '}';
+        return "SearchFlightsRequest{"
+                + "from='" + from + '\''
+                + ", to='" + to + '\''
+                + ", departureDate=" + departureDate + '}';
     }
 }
