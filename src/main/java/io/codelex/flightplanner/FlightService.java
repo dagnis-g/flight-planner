@@ -1,8 +1,8 @@
 package io.codelex.flightplanner;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 public class FlightService {
-    private volatile static int id = 0;
+    private long id = 0;
     private final FlightRepository flightRepository;
 
     public FlightService(FlightRepository flightRepository) {
@@ -21,7 +21,7 @@ public class FlightService {
         flightRepository.clearFlights();
     }
 
-    public ResponseEntity<PageResult> searchFlightByFromToAndDepartureDate(SearchFlightsRequest flight) {
+    public PageResult searchFlightByFromToAndDepartureDate(SearchFlightsRequest flight) {
         return flightRepository.searchFlightByFromToAndDepartureDate(flight);
     }
 
@@ -40,7 +40,7 @@ public class FlightService {
         return searchResults;
     }
 
-    public void deleteFlightById(int id) {
+    public synchronized void deleteFlightById(long id) {
         Flight flightToRemove = null;
         for (Flight i : flightRepository.getFlights()) {
             if (i.getId() == id) {
@@ -50,31 +50,33 @@ public class FlightService {
         flightRepository.removeFlight(flightToRemove);
     }
 
-    public Flight getFlightById(int id) {
-        return flightRepository.getFlightById(id);
+    public Flight getFlightById(long id) {
+        Flight flightToGet = flightRepository.getFlightById(id);
+        if (flightToGet == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return flightToGet;
     }
 
-    public ResponseEntity<Flight> addFlight(Flight flight) {
+    public synchronized Flight addFlight(Flight flight) {
         if (checkIfFlightAlreadyInRepository(flight)) {
-            return new ResponseEntity<Flight>(flight, HttpStatus.CONFLICT);
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
         if (checkIfSameAirports(flight)) {
-            return new ResponseEntity<Flight>(flight, HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         if (!checkIfDepartureBeforeArrival(flight)) {
-            return new ResponseEntity<Flight>(flight, HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
         flight.setId(id++);
         flightRepository.addFlight(flight);
-        return new ResponseEntity<Flight>(flight, HttpStatus.CREATED);
+        return flight;
     }
 
     @Override
     public String toString() {
-        return "FlightService{"
-                + "flightRepository="
-                + flightRepository + '}';
+        return "FlightService{" + "flightRepository=" + flightRepository + '}';
     }
 
     public List<Flight> getFlightList() {
@@ -82,8 +84,7 @@ public class FlightService {
     }
 
     public boolean checkIfFlightAlreadyInRepository(Flight flight) {
-        return flightRepository.getFlights().stream()
-                .anyMatch(i -> i.equals(flight));
+        return flightRepository.getFlights().stream().anyMatch(i -> i.equals(flight));
     }
 
     public boolean checkIfSameAirports(Flight flight) {
@@ -96,14 +97,14 @@ public class FlightService {
         String airportFrom = flight.getFrom().getAirport().trim().toLowerCase();
         String airportTo = flight.getTo().getAirport().trim().toLowerCase();
 
-        return cityFrom.equals(cityTo)
-                && countryFrom.equals(countryTo)
-                && airportFrom.equals(airportTo);
+        return cityFrom.equals(cityTo) && countryFrom.equals(countryTo) && airportFrom.equals(airportTo);
     }
 
     public boolean checkIfDepartureBeforeArrival(Flight flight) {
-        LocalDateTime departure = LocalDateTime.parse(flight.getDepartureTime().replace(" ", "T"));
-        LocalDateTime arrival = LocalDateTime.parse(flight.getArrivalTime().replace(" ", "T"));
+
+        LocalDateTime departure = flight.getDepartureTime();
+        LocalDateTime arrival = flight.getArrivalTime();
+
         return departure.isBefore(arrival);
     }
 
