@@ -4,9 +4,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class FlightService {
@@ -26,12 +27,12 @@ public class FlightService {
     }
 
     public List<Airport> searchAirport(String search) {
-        List<Flight> allFlights = flightRepository.getFlights();
-        List<Airport> allAirports = new ArrayList<>();
         List<Airport> searchResults = new ArrayList<>();
-        for (Flight i : allFlights) {
-            allAirports.add(i.getFrom());
-        }
+
+        Set<Airport> allAirports = flightRepository.getFlights().stream()
+                .map(Flight::getFrom)
+                .collect(Collectors.toSet());
+
         for (Airport airport : allAirports) {
             if (airport.textForSearch().contains(search.trim().toLowerCase())) {
                 searchResults.add(airport);
@@ -62,7 +63,8 @@ public class FlightService {
         if (checkIfFlightAlreadyInRepository(flight)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
-        if (checkIfSameAirports(flight)) {
+
+        if (flight.airportsMatch()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         if (!checkIfDepartureBeforeArrival(flight)) {
@@ -74,38 +76,16 @@ public class FlightService {
         return flight;
     }
 
-    @Override
-    public String toString() {
-        return "FlightService{" + "flightRepository=" + flightRepository + '}';
-    }
-
     public List<Flight> getFlightList() {
         return flightRepository.getFlights();
     }
 
-    public boolean checkIfFlightAlreadyInRepository(Flight flight) {
+    private boolean checkIfFlightAlreadyInRepository(Flight flight) {
         return flightRepository.getFlights().stream().anyMatch(i -> i.equals(flight));
     }
 
-    public boolean checkIfSameAirports(Flight flight) {
-        String cityFrom = flight.getFrom().getCity().trim().toLowerCase();
-        String cityTo = flight.getTo().getCity().trim().toLowerCase();
-
-        String countryFrom = flight.getFrom().getCountry().trim().toLowerCase();
-        String countryTo = flight.getTo().getCountry().trim().toLowerCase();
-
-        String airportFrom = flight.getFrom().getAirport().trim().toLowerCase();
-        String airportTo = flight.getTo().getAirport().trim().toLowerCase();
-
-        return cityFrom.equals(cityTo) && countryFrom.equals(countryTo) && airportFrom.equals(airportTo);
-    }
-
-    public boolean checkIfDepartureBeforeArrival(Flight flight) {
-
-        LocalDateTime departure = flight.getDepartureTime();
-        LocalDateTime arrival = flight.getArrivalTime();
-
-        return departure.isBefore(arrival);
+    private boolean checkIfDepartureBeforeArrival(Flight flight) {
+        return flight.getDepartureTime().isBefore(flight.getArrivalTime());
     }
 
 }

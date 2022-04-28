@@ -20,13 +20,6 @@ public class FlightRepository {
         flights.add(flight);
     }
 
-    @Override
-    public String toString() {
-        return "FlightRepository{"
-                + "flights=" + flights
-                + '}';
-    }
-
     public List<Flight> getFlights() {
         return flights;
     }
@@ -44,7 +37,7 @@ public class FlightRepository {
         return null;
     }
 
-    public boolean checkIfSameFlightFromFlightRequest(Flight flight, SearchFlightsRequest request) {
+    private boolean checkIfSameFlightFromFlightRequest(Flight flight, SearchFlightsRequest request) {
 
         return flight.getFrom().getAirport().equalsIgnoreCase(request.getFrom())
                 && flight.getTo().getAirport().equalsIgnoreCase(request.getTo())
@@ -61,17 +54,15 @@ public class FlightRepository {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        int totalItems = 0;
         List<Flight> items = new ArrayList<>();
 
         for (Flight i : flights) {
             if (checkIfSameFlightFromFlightRequest(i, flight)) {
-                totalItems++;
                 items.add(i);
             }
         }
 
-        int page = (int) Math.ceil(totalItems / RESULTS_PER_PAGE);
-        return new PageResult(page, totalItems, items);
+        int page = (int) Math.ceil(items.size() / RESULTS_PER_PAGE);
+        return new PageResult(page, items.size(), items);
     }
 }

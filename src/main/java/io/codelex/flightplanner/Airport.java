@@ -45,6 +45,12 @@ public class Airport {
         this.airport = airport;
     }
 
+    public boolean matches(Airport airport) {
+        return getCity().trim().equalsIgnoreCase(airport.getCity().trim())
+                && getCountry().trim().equalsIgnoreCase(airport.getCountry().trim())
+                && getAirport().trim().equalsIgnoreCase(airport.getAirport().trim());
+    }
+
     @Override
     public String toString() {
         return "Airport{"
