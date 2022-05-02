@@ -19,12 +19,12 @@ public class AdminController {
 
     @PutMapping("/flights")
     @ResponseStatus(HttpStatus.CREATED)
-    public Flight addFlight(@Valid @RequestBody Flight flight) {
+    public synchronized Flight addFlight(@Valid @RequestBody Flight flight) {
         return flightService.addFlight(flight);
     }
 
     @DeleteMapping("/flights/{id}")
-    public void deleteFlightById(@PathVariable long id) {
+    public synchronized void deleteFlightById(@PathVariable long id) {
         flightService.deleteFlightById(id);
     }
 

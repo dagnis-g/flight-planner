@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class FlightService {
-    private long id = 0;
+    private volatile long id = 0;
     private final FlightRepository flightRepository;
 
     public FlightService(FlightRepository flightRepository) {
@@ -41,7 +41,7 @@ public class FlightService {
         return searchResults;
     }
 
-    public synchronized void deleteFlightById(long id) {
+    public void deleteFlightById(long id) {
         Flight flightToRemove = null;
         for (Flight i : flightRepository.getFlights()) {
             if (i.getId() == id) {
@@ -59,7 +59,7 @@ public class FlightService {
         return flightToGet;
     }
 
-    public synchronized Flight addFlight(Flight flight) {
+    public Flight addFlight(Flight flight) {
         if (checkIfFlightAlreadyInRepository(flight)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
@@ -74,10 +74,6 @@ public class FlightService {
         flight.setId(id++);
         flightRepository.addFlight(flight);
         return flight;
-    }
-
-    public List<Flight> getFlightList() {
-        return flightRepository.getFlights();
     }
 
     private boolean checkIfFlightAlreadyInRepository(Flight flight) {
