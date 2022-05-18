@@ -9,7 +9,6 @@ import io.codelex.flightplanner.repository.FlightInDbRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -29,7 +28,6 @@ public class FlightInDbService implements FlightService {
     }
 
     @Override
-    @Transactional
     public void clearFlights() {
         flightInDbRepository.deleteAll();
         airportDatabaseRepository.deleteAll();
@@ -76,17 +74,18 @@ public class FlightInDbService implements FlightService {
 
     @Override
     public synchronized Flight addFlight(Flight flight) {
+
         if (checkIfFlightInDB(flight)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
+        if (flight.airportsMatch() || !checkIfDepartureBeforeArrival(flight)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         if (!checkIfAirportInDB(flight.getTo())) {
             airportDatabaseRepository.save(flight.getTo());
         }
         if (!checkIfAirportInDB(flight.getFrom())) {
             airportDatabaseRepository.save(flight.getFrom());
-        }
-        if (flight.airportsMatch() || !checkIfDepartureBeforeArrival(flight)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
         return flightInDbRepository.save(flight);
