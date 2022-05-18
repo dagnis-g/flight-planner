@@ -1,7 +1,7 @@
-package io.codelex.flightplanner.controllers;
+package io.codelex.flightplanner.controller;
 
-import io.codelex.flightplanner.Flight;
-import io.codelex.flightplanner.FlightService;
+import io.codelex.flightplanner.model.Flight;
+import io.codelex.flightplanner.service.FlightService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,12 +19,12 @@ public class AdminController {
 
     @PutMapping("/flights")
     @ResponseStatus(HttpStatus.CREATED)
-    public synchronized Flight addFlight(@Valid @RequestBody Flight flight) {
+    public Flight addFlight(@Valid @RequestBody Flight flight) {
         return flightService.addFlight(flight);
     }
 
     @DeleteMapping("/flights/{id}")
-    public synchronized void deleteFlightById(@PathVariable long id) {
+    public void deleteFlightById(@PathVariable long id) {
         flightService.deleteFlightById(id);
     }
 

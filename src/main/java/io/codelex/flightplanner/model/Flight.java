@@ -1,7 +1,8 @@
-package io.codelex.flightplanner;
+package io.codelex.flightplanner.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import javax.persistence.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -9,33 +10,53 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
+@Entity
 public class Flight {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "flight_id")
     private long id;
+
+    @JoinColumn(name = "airport_from")
+    @ManyToOne
     @Valid
     @NotNull
     private Airport from;
+
+    @JoinColumn(name = "airport_to")
+    @ManyToOne
     @Valid
     @NotNull
     private Airport to;
+
     @NotBlank
     private String carrier;
+
     @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime departureTime;
+
     @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime arrivalTime;
-
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public Flight(long id, Airport from, Airport to, String carrier, String departureTime, String arrivalTime) {
         this.id = id;
         this.from = from;
         this.to = to;
         this.carrier = carrier;
-        this.departureTime = LocalDateTime.parse(departureTime, formatter);
-        this.arrivalTime = LocalDateTime.parse(arrivalTime, formatter);
+        this.departureTime = formatDate(departureTime);
+        this.arrivalTime = formatDate(arrivalTime);
+    }
+
+    public Flight() {
+
+    }
+
+    private LocalDateTime formatDate(String date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        return LocalDateTime.parse(date, formatter);
     }
 
     public long getId() {
