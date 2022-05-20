@@ -12,11 +12,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
+@Transactional
 @ConditionalOnProperty(prefix = "flight-planner", name = "store-type", havingValue = "database")
 public class FlightInDbService implements FlightService {
 
@@ -44,9 +46,10 @@ public class FlightInDbService implements FlightService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        List<Flight> items = flightInDbRepository.findAll().stream()
-                .filter((Flight i) -> checkIfSameFlightFromFlightRequest(i, flight))
-                .collect(Collectors.toList());
+        LocalDateTime departureDateStart = flight.getDepartureDate().atStartOfDay();
+        LocalDateTime departureDateEnd = LocalDateTime.from(flight.getDepartureDate().plusDays(1).atStartOfDay());
+
+        List<Flight> items = flightInDbRepository.findBySearchRequest(from, to, departureDateStart, departureDateEnd);
 
         int page = (int) Math.ceil(items.size() / RESULTS_PER_PAGE);
         return new PageResult(page, items.size(), items);
@@ -54,13 +57,10 @@ public class FlightInDbService implements FlightService {
 
     @Override
     public Set<Airport> searchAirport(String search) {
-        return airportDatabaseRepository.findAll().stream()
-                .filter((Airport i) -> i.textForSearch().contains(search.trim().toLowerCase()))
-                .collect(Collectors.toSet());
+        return airportDatabaseRepository.findByAllColumns(search.trim());
     }
 
     @Override
-    @Transactional
     public void deleteFlightById(long id) {
         flightInDbRepository.findById(id).ifPresent(flightInDbRepository::delete);
     }
@@ -75,14 +75,7 @@ public class FlightInDbService implements FlightService {
     }
 
     @Override
-    @Transactional
     public Flight addFlight(Flight flight) {
-        if (!checkIfAirportInDB(flight.getTo())) {
-            flight.setTo(airportDatabaseRepository.save(flight.getTo()));
-        }
-        if (!checkIfAirportInDB(flight.getFrom())) {
-            flight.setFrom(airportDatabaseRepository.save(flight.getFrom()));
-        }
 
         if (checkIfFlightInDB(flight)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
@@ -91,18 +84,15 @@ public class FlightInDbService implements FlightService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
+        flight.setFrom(findOrCreateAirport(flight.getFrom()));
+        flight.setTo(findOrCreateAirport(flight.getTo()));
+
         return flightInDbRepository.save(flight);
     }
 
-    private boolean checkIfSameFlightFromFlightRequest(Flight flight, SearchFlightsRequest request) {
-        return flight.getFrom().getAirport().equalsIgnoreCase(request.getFrom())
-                && flight.getTo().getAirport().equalsIgnoreCase(request.getTo())
-                && flight.getDepartureTime().toString()
-                .contains(String.valueOf(request.getDepartureDate()));
-    }
-
-    private boolean checkIfAirportInDB(Airport airport) {
-        return airportDatabaseRepository.findById(airport.getAirport()).isPresent();
+    private Airport findOrCreateAirport(Airport airport) {
+        Optional<Airport> existingAirport = airportDatabaseRepository.findById(airport.getAirport());
+        return existingAirport.orElseGet(() -> airportDatabaseRepository.save(airport));
     }
 
     private boolean checkIfFlightInDB(Flight flight) {

@@ -19,13 +19,13 @@ public class Flight {
     private long id;
 
     @JoinColumn(name = "airport_from")
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne
     @Valid
     @NotNull
     private Airport from;
 
     @JoinColumn(name = "airport_to")
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne
     @Valid
     @NotNull
     private Airport to;
