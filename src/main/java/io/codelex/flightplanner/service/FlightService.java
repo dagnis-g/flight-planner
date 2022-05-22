@@ -9,17 +9,22 @@ import org.springframework.stereotype.Service;
 import java.util.Set;
 
 @Service
-public interface FlightService {
+public abstract class FlightService {
 
-    void clearFlights();
+    public abstract void clearFlights();
 
-    PageResult searchFlightByFromToAndDepartureDate(SearchFlightsRequest flight);
+    public abstract PageResult searchFlightByFromToAndDepartureDate(SearchFlightsRequest flight);
 
-    Set<Airport> searchAirport(String search);
+    public abstract Set<Airport> searchAirport(String search);
 
-    void deleteFlightById(long id);
+    public abstract void deleteFlightById(long id);
 
-    Flight getFlightById(long id);
+    public abstract Flight getFlightById(long id);
 
-    Flight addFlight(Flight flight);
+    public abstract Flight addFlight(Flight flight);
+
+    boolean checkIfDepartureBeforeArrival(Flight flight) {
+        return flight.getDepartureTime().isBefore(flight.getArrivalTime());
+    }
+
 }

@@ -20,9 +20,9 @@ public interface FlightInDbRepository extends JpaRepository<Flight, Long> {
     );
 
     @Query(value = "select f from Flight f join Airport a on f.from = a.airport join Airport a2 on f.to = a2.airport where a.airport = :from and a2.airport = :to and f.departureTime >= :date_start AND f.departureTime < :date_end")
-    List<Flight> findBySearchRequest(@Param("from") String from,
-                                     @Param("to") String to,
-                                     @Param("date_start") LocalDateTime dateStart,
-                                     @Param("date_end") LocalDateTime dateEnd);
+    List<Flight> checkIfFlightRequestInDb(@Param("from") String from,
+                                          @Param("to") String to,
+                                          @Param("date_start") LocalDateTime dateStart,
+                                          @Param("date_end") LocalDateTime dateEnd);
 
 }

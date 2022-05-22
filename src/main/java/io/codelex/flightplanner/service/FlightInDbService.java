@@ -20,7 +20,7 @@ import java.util.Set;
 @Service
 @Transactional
 @ConditionalOnProperty(prefix = "flight-planner", name = "store-type", havingValue = "database")
-public class FlightInDbService implements FlightService {
+public class FlightInDbService extends FlightService {
 
     private final FlightInDbRepository flightInDbRepository;
     private final AirportDatabaseRepository airportDatabaseRepository;
@@ -49,7 +49,7 @@ public class FlightInDbService implements FlightService {
         LocalDateTime departureDateStart = flight.getDepartureDate().atStartOfDay();
         LocalDateTime departureDateEnd = LocalDateTime.from(flight.getDepartureDate().plusDays(1).atStartOfDay());
 
-        List<Flight> items = flightInDbRepository.findBySearchRequest(from, to, departureDateStart, departureDateEnd);
+        List<Flight> items = flightInDbRepository.checkIfFlightRequestInDb(from, to, departureDateStart, departureDateEnd);
 
         int page = (int) Math.ceil(items.size() / RESULTS_PER_PAGE);
         return new PageResult(page, items.size(), items);
@@ -103,10 +103,6 @@ public class FlightInDbService implements FlightService {
                         flight.getCarrier(),
                         flight.getDepartureTime(),
                         flight.getArrivalTime());
-    }
-
-    private boolean checkIfDepartureBeforeArrival(Flight flight) {
-        return flight.getDepartureTime().isBefore(flight.getArrivalTime());
     }
 
 }

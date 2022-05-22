@@ -10,11 +10,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @ConditionalOnProperty(prefix = "flight-planner", name = "store-type", havingValue = "in-memory")
-public class FlightInMemoryService implements FlightService {
+public class FlightInMemoryService extends FlightService {
+
+    private volatile long id = 0;
 
     private final FlightInMemoryRepository flightRepository;
 
@@ -28,17 +32,12 @@ public class FlightInMemoryService implements FlightService {
     }
 
     @Override
-    public PageResult searchFlightByFromToAndDepartureDate(SearchFlightsRequest flight) {
-        return flightRepository.searchFlightByFromToAndDepartureDate(flight);
-    }
-
-    @Override
     public Set<Airport> searchAirport(String search) {
         return flightRepository.searchAirport(search);
     }
 
     @Override
-    public void deleteFlightById(long id) {
+    public synchronized void deleteFlightById(long id) {
         flightRepository.deleteFlightById(id);
     }
 
@@ -52,8 +51,47 @@ public class FlightInMemoryService implements FlightService {
     }
 
     @Override
-    public Flight addFlight(Flight flight) {
-        return flightRepository.addFlight(flight);
+    public synchronized Flight addFlight(Flight flight) {
+
+        if (checkIfFlightAlreadyInRepository(flight)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
+        if (flight.airportsMatch() || !checkIfDepartureBeforeArrival(flight)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        flight.setId(id++);
+        flightRepository.addFlight(flight);
+        return flight;
+    }
+
+    @Override
+    public PageResult searchFlightByFromToAndDepartureDate(SearchFlightsRequest flight) {
+        final double RESULTS_PER_PAGE = 10.0;
+        String from = flight.getFrom();
+        String to = flight.getTo();
+
+        if (from.equalsIgnoreCase(to)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        List<Flight> items = flightRepository.getFlights().stream()
+                .filter((Flight i) -> checkIfFlightRequestInRepo(i, flight))
+                .collect(Collectors.toList());
+
+        int page = (int) Math.ceil(items.size() / RESULTS_PER_PAGE);
+        return new PageResult(page, items.size(), items);
+    }
+
+    private synchronized boolean checkIfFlightAlreadyInRepository(Flight flight) {
+        return flightRepository.getFlights().stream().anyMatch(i -> i.equals(flight));
+    }
+    
+    private boolean checkIfFlightRequestInRepo(Flight flight, SearchFlightsRequest request) {
+        return flight.getFrom().getAirport().equalsIgnoreCase(request.getFrom())
+                && flight.getTo().getAirport().equalsIgnoreCase(request.getTo())
+                && flight.getDepartureTime().toString()
+                .contains(String.valueOf(request.getDepartureDate()));
     }
 
 }
