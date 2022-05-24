@@ -37,7 +37,7 @@ public class FlightInMemoryService extends FlightService {
     }
 
     @Override
-    public synchronized void deleteFlightById(long id) {
+    public void deleteFlightById(long id) {
         flightRepository.deleteFlightById(id);
     }
 
@@ -83,10 +83,10 @@ public class FlightInMemoryService extends FlightService {
         return new PageResult(page, items.size(), items);
     }
 
-    private synchronized boolean checkIfFlightAlreadyInRepository(Flight flight) {
+    private boolean checkIfFlightAlreadyInRepository(Flight flight) {
         return flightRepository.getFlights().stream().anyMatch(i -> i.equals(flight));
     }
-    
+
     private boolean checkIfFlightRequestInRepo(Flight flight, SearchFlightsRequest request) {
         return flight.getFrom().getAirport().equalsIgnoreCase(request.getFrom())
                 && flight.getTo().getAirport().equalsIgnoreCase(request.getTo())

@@ -47,7 +47,7 @@ public class FlightInDbService extends FlightService {
         }
 
         LocalDateTime departureDateStart = flight.getDepartureDate().atStartOfDay();
-        LocalDateTime departureDateEnd = LocalDateTime.from(flight.getDepartureDate().plusDays(1).atStartOfDay());
+        LocalDateTime departureDateEnd = flight.getDepartureDate().plusDays(1).atStartOfDay();
 
         List<Flight> items = flightInDbRepository.checkIfFlightRequestInDb(from, to, departureDateStart, departureDateEnd);
 

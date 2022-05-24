@@ -18,22 +18,22 @@ public class FlightInMemoryRepository {
         flights.clear();
     }
 
-    public synchronized List<Flight> getFlights() {
+    public List<Flight> getFlights() {
         return flights;
     }
 
-    public synchronized Flight getFlightById(long id) {
+    public Flight getFlightById(long id) {
         return getFlights().stream()
                 .filter(i -> i.getId() == id)
                 .findFirst()
                 .orElse(null);
     }
 
-    public synchronized void deleteFlightById(long id) {
+    public void deleteFlightById(long id) {
         getFlights().remove(getFlightById(id));
     }
 
-    public synchronized void addFlight(Flight flight) {
+    public void addFlight(Flight flight) {
         flights.add(flight);
     }
 
@@ -43,5 +43,5 @@ public class FlightInMemoryRepository {
                 .filter((Airport i) -> i.textForSearch().contains(search.trim().toLowerCase()))
                 .collect(Collectors.toSet());
     }
-    
+
 }
