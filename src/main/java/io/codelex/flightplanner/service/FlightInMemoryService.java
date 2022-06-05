@@ -84,7 +84,7 @@ public class FlightInMemoryService extends FlightService {
     }
 
     private boolean checkIfFlightAlreadyInRepository(Flight flight) {
-        return flightRepository.getFlights().stream().anyMatch(i -> i.equals(flight));
+        return flightRepository.getFlights().contains(flight);
     }
 
     private boolean checkIfFlightRequestInRepo(Flight flight, SearchFlightsRequest request) {

@@ -8,7 +8,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 
 @Entity
 public class Flight {
@@ -127,12 +126,24 @@ public class Flight {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         Flight flight = (Flight) o;
-        return Objects.equals(from, flight.from) && Objects.equals(to, flight.to) && Objects.equals(carrier, flight.carrier) && Objects.equals(departureTime, flight.departureTime) && Objects.equals(arrivalTime, flight.arrivalTime);
+
+        if (from != null ? !from.equals(flight.from) : flight.from != null) return false;
+        if (to != null ? !to.equals(flight.to) : flight.to != null) return false;
+        if (carrier != null ? !carrier.equals(flight.carrier) : flight.carrier != null) return false;
+        if (departureTime != null ? !departureTime.equals(flight.departureTime) : flight.departureTime != null)
+            return false;
+        return arrivalTime != null ? arrivalTime.equals(flight.arrivalTime) : flight.arrivalTime == null;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(from, to, carrier, departureTime, arrivalTime);
+        int result = from != null ? from.hashCode() : 0;
+        result = 31 * result + (to != null ? to.hashCode() : 0);
+        result = 31 * result + (carrier != null ? carrier.hashCode() : 0);
+        result = 31 * result + (departureTime != null ? departureTime.hashCode() : 0);
+        result = 31 * result + (arrivalTime != null ? arrivalTime.hashCode() : 0);
+        return result;
     }
 }

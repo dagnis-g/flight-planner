@@ -77,9 +77,16 @@ public class FlightInDbService extends FlightService {
     @Override
     public Flight addFlight(Flight flight) {
 
-        if (checkIfFlightInDB(flight)) {
+        if (flightInDbRepository.existsFlightByFromAndToAndCarrierAndDepartureTimeAndArrivalTime(
+                flight.getFrom(),
+                flight.getTo(),
+                flight.getCarrier(),
+                flight.getDepartureTime(),
+                flight.getArrivalTime())
+        ) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
+
         if (flight.airportsMatch() || !checkIfDepartureBeforeArrival(flight)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
@@ -93,16 +100,6 @@ public class FlightInDbService extends FlightService {
     private Airport findOrCreateAirport(Airport airport) {
         Optional<Airport> existingAirport = airportDatabaseRepository.findById(airport.getAirport());
         return existingAirport.orElseGet(() -> airportDatabaseRepository.save(airport));
-    }
-
-    private boolean checkIfFlightInDB(Flight flight) {
-        return flightInDbRepository
-                .existsByFromAndToAndCarrierAndDepartureTimeAndArrivalTime(
-                        flight.getFrom(),
-                        flight.getTo(),
-                        flight.getCarrier(),
-                        flight.getDepartureTime(),
-                        flight.getArrivalTime());
     }
 
 }

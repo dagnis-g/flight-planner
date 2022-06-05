@@ -29,8 +29,8 @@ public class FlightInMemoryRepository {
                 .orElse(null);
     }
 
-    public void deleteFlightById(long id) {
-        getFlights().remove(getFlightById(id));
+    public synchronized void deleteFlightById(long id) {
+        flights.removeIf(f -> f.getId() == id);
     }
 
     public void addFlight(Flight flight) {

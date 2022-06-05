@@ -11,5 +11,6 @@ CREATE TABLE flight
     departure_time timestamp    NOT NULL,
     arrival_time   timestamp    NOT NULL,
     constraint flight_from_id_fkey foreign key (airport_from) references airport (airport),
-    constraint flight_to_id_fkey foreign key (airport_to) references airport (airport)
+    constraint flight_to_id_fkey foreign key (airport_to) references airport (airport),
+    constraint uniqueObject unique (airport_from, airport_to, carrier, departure_time, arrival_time)
 );

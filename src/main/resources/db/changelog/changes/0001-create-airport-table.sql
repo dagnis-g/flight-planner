@@ -8,3 +8,4 @@ CREATE TABLE airport
     country VARCHAR(255) NOT NULL,
     city    VARCHAR(255) NOT NULL
 );
+
