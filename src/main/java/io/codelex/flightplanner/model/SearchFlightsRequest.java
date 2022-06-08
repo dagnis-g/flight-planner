@@ -1,4 +1,4 @@
-package io.codelex.flightplanner;
+package io.codelex.flightplanner.model;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;

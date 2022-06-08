@@ -1,6 +1,8 @@
 package io.codelex.flightplanner;
 
-import io.codelex.flightplanner.controllers.AdminController;
+import io.codelex.flightplanner.controller.AdminController;
+import io.codelex.flightplanner.model.Airport;
+import io.codelex.flightplanner.model.Flight;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

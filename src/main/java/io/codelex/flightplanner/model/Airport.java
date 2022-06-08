@@ -1,20 +1,29 @@
-package io.codelex.flightplanner;
+package io.codelex.flightplanner.model;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
-import java.util.Objects;
 
+@Entity
 public class Airport {
+
     @NotBlank
     private String country;
+
     @NotBlank
     private String city;
+
     @NotBlank
+    @Id
     private String airport;
 
     public Airport(String country, String city, String airport) {
         this.country = country;
         this.city = city;
         this.airport = airport;
+    }
+
+    public Airport() {
     }
 
     public String getCountry() {
@@ -63,12 +72,19 @@ public class Airport {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         Airport airport1 = (Airport) o;
-        return Objects.equals(country, airport1.country) && Objects.equals(city, airport1.city) && Objects.equals(airport, airport1.airport);
+
+        if (country != null ? !country.equals(airport1.country) : airport1.country != null) return false;
+        if (city != null ? !city.equals(airport1.city) : airport1.city != null) return false;
+        return airport != null ? airport.equals(airport1.airport) : airport1.airport == null;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(country, city, airport);
+        int result = country != null ? country.hashCode() : 0;
+        result = 31 * result + (city != null ? city.hashCode() : 0);
+        result = 31 * result + (airport != null ? airport.hashCode() : 0);
+        return result;
     }
 }

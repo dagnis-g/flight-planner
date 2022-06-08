@@ -1,10 +1,14 @@
-package io.codelex.flightplanner.controllers;
+package io.codelex.flightplanner.controller;
 
-import io.codelex.flightplanner.*;
+import io.codelex.flightplanner.model.Airport;
+import io.codelex.flightplanner.model.Flight;
+import io.codelex.flightplanner.model.PageResult;
+import io.codelex.flightplanner.model.SearchFlightsRequest;
+import io.codelex.flightplanner.service.FlightService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
@@ -17,7 +21,7 @@ public class CustomerController {
     }
 
     @GetMapping("/airports")
-    public List<Airport> searchAirport(@RequestParam String search) {
+    public Set<Airport> searchAirport(@RequestParam String search) {
         return flightService.searchAirport(search);
     }
 
